@@ -1,0 +1,31 @@
+---
+
+## This will override the postgresql chart values
+# externalPostgresql:
+#   # note: ?sslmode=require => ?ssl=true
+#   databaseURL: postgresql://postgres:postgres@postgres:5432/wiki?ssl=true
+#   # For self signed CAs, like DigitalOcean
+#   NODE_TLS_REJECT_UNAUTHORIZED: "0"
+
+## Configuration values for the postgresql dependency.
+## ref: https://github.com/kubernetes/charts/blob/master/stable/postgresql/README.md
+##
+postgresql:
+  ## Use the PostgreSQL chart dependency.
+  ## Set to false if bringing your own PostgreSQL, and set secret value postgresql-uri.
+  ##
+  enabled: true
+  # ssl: false
+  # ca: "path to ca"
+  # postgresqlHost: postgres
+  # postgresqlPort: 5432
+  fullnameOverride: ""
+  postgresqlUser: postgres
+  postgresqlDatabase: wiki
+  replication:
+    enabled: false
+  persistence:
+    enabled: true
+    # storageClass: "-"
+    accessMode: ReadWriteOnce
+    size: 8Gi
