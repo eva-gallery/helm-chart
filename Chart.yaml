@@ -1,8 +1,8 @@
 ---
 
 apiVersion: v2
-name: eva-gallery
-version: 2.2.0
+name: eva
+version: 1.0.0
 AppVersion: 0.1.0
 description: The most open and well playful gallery with NFT and AI support in the web.
 keywords:
