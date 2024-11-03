@@ -3,47 +3,47 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "eva.fullname" . }}-frontend
+  name: {{ include "eva.fullname" . }}-backend
   labels:
     {{- include "eva.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.frontend.replicaCount }}
-  revisionHistoryLimit: {{ .Values.frontend.revisionHistoryLimit }}
+  replicas: {{ .Values.backend.replicaCount }}
+  revisionHistoryLimit: {{ .Values.backend.revisionHistoryLimit }}
   selector:
     matchLabels:
       {{- include "eva.selectorLabels" . | nindent 6 }}
-      {{- include "eva.frontend.selectorLabels" . | nindent 6 }}
+      {{- include "eva.backend.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
         {{- include "eva.selectorLabels" . | nindent 8 }}
-        {{- include "eva.frontend.selectorLabels" . | nindent 8 }}
+        {{- include "eva.backend.selectorLabels" . | nindent 8 }}
       annotations:
-        {{- toYaml .Values.frontend.podAnnotations | nindent 8 }}
+        {{- toYaml .Values.backend.podAnnotations | nindent 8 }}
     spec:
-    {{- with .Values.frontend.imagePullSecrets }}
+    {{- with .Values.backend.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
       serviceAccountName: {{ include "eva.serviceAccountName" . }}
       securityContext:
-        {{- toYaml .Values.frontend.podSecurityContext | nindent 8 }}
+        {{- toYaml .Values.backend.podSecurityContext | nindent 8 }}
       initContainers:
-        - name: {{ .Chart.Name }}-frontend-migrate-db
-          image: "{{ .Values.frontend.image.repository }}:{{ default "latest" .Values.frontend.image.tag }}"
-          imagePullPolicy: {{ default "IfNotPresent" .Values.frontend.image.imagePullPolicy }}
+        - name: {{ .Chart.Name }}-backend-migrate-db
+          image: "{{ .Values.backend.image.repository }}:{{ default "latest" .Values.backend.image.tag }}"
+          imagePullPolicy: {{ default "IfNotPresent" .Values.backend.image.imagePullPolicy }}
           env:
-            {{- toYaml .Values.frontend.env | nindent 12 }}
+            {{- toYaml .Values.backend.env | nindent 12 }}
           command: [ "sh", "-c" ]
           args: [
             ""
           ]
       containers:
-        - name: {{ .Chart.Name }}-frontend
+        - name: {{ .Chart.Name }}-backend
           securityContext:
-            {{- toYaml .Values.frontend.securityContext | nindent 12 }}
-          image: "{{ .Values.frontend.image.repository }}:{{ default "latest" .Values.frontend.image.tag }}"
-          imagePullPolicy: {{ default "IfNotPresent" .Values.frontend.image.imagePullPolicy }}
+            {{- toYaml .Values.backend.securityContext | nindent 12 }}
+          image: "{{ .Values.backend.image.repository }}:{{ default "latest" .Values.backend.image.tag }}"
+          imagePullPolicy: {{ default "IfNotPresent" .Values.backend.image.imagePullPolicy }}
           env:
             - name: DB_TYPE
               value: postgres
@@ -76,8 +76,8 @@ spec:
                   key: {{ template "eva.postgresql.secretKey" . }}
             {{- end }}
             - name: HA_ACTIVE
-              value: {{ .Values.frontend.replicaCount | int | ge 2 | quote }}
-    {{- with .Values.frontend.volumeMounts }}
+              value: {{ .Values.backend.replicaCount | int | ge 2 | quote }}
+    {{- with .Values.backend.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
     {{- end }}
@@ -86,26 +86,26 @@ spec:
               containerPort: 3000
               protocol: TCP
           livenessProbe:
-            {{- toYaml .Values.frontend.livenessProbe | nindent 12 }}
+            {{- toYaml .Values.backend.livenessProbe | nindent 12 }}
           readinessProbe:
-            {{- toYaml .Values.frontend.readinessProbe | nindent 12 }}
+            {{- toYaml .Values.backend.readinessProbe | nindent 12 }}
           startupProbe:
-            {{- toYaml .Values.frontend.startupProbe | nindent 12 }}
+            {{- toYaml .Values.backend.startupProbe | nindent 12 }}
           resources:
-            {{- toYaml .Values.frontend.resources | nindent 12 }}
-      {{- with .Values.frontend.nodeSelector }}
+            {{- toYaml .Values.backend.resources | nindent 12 }}
+      {{- with .Values.backend.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-    {{- with .Values.frontend.affinity }}
+    {{- with .Values.backend.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.frontend.tolerations }}
+    {{- with .Values.backend.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.frontend.volumes }}
+    {{- with .Values.backend.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}
     {{- end }}

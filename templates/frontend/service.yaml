@@ -25,4 +25,6 @@ spec:
       targetPort: http
       protocol: TCP
       name: https
-  selector: {{- include "eva.selectorLabels" . | nindent 4}}
+  selector:
+    {{- include "eva.selectorLabels" . | nindent 4}}
+    {{- include "eva.frontend.selectorLabels" . | nindent 4}}

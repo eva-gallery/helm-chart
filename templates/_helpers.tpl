@@ -48,7 +48,20 @@ Selector labels
 */}}
 {{- define "eva.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "eva.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end -}}
+
+{{/*
+Selector labels for the frontend component
+*/}}
+{{- define "eva.frontend.selectorLabels" -}}
+app.kubernetes.io/instance: {{ .Release.Name }}-frontend
+{{- end -}}
+
+{{/*
+Selector labels for the backend component
+*/}}
+{{- define "eva.backend.selectorLabels" -}}
+app.kubernetes.io/instance: {{ .Release.Name }}-backend
 {{- end -}}
 
 {{/*
