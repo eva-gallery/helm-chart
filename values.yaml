@@ -95,6 +95,20 @@ backend:
     tag: latest
     imagePullPolicy: IfNotPresent
 
+  config:
+    session_lifetime: 600
+    log_requests: true
+
+  extraEnv:
+    - name: EVA_GALLERY_COLLECTION
+      value: 465  # <TODO: setup manually and insert here>
+    - name: WSS_PROVIDER
+      value: wss://kusama-asset-hub-rpc.polkadot.io
+    - name: WALLET_ADDRESS 
+      value: <TODO: Add wallet address>
+    - name: SUBSCAN_URL
+      value: https://assethub-kusama.subscan.io
+
   replicaCount: 1
   service:
     port: 80

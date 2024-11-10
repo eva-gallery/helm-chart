@@ -45,6 +45,8 @@ spec:
           image: "{{ .Values.backend.image.repository }}:{{ default "latest" .Values.backend.image.tag }}"
           imagePullPolicy: {{ default "IfNotPresent" .Values.backend.image.imagePullPolicy }}
           env:
+            - name: PORT
+              value: 80
             - name: DB_TYPE
               value: postgres
             {{- if (.Values.externalPostgresql).databaseURL }}
@@ -53,19 +55,19 @@ spec:
             - name: NODE_TLS_REJECT_UNAUTHORIZED
               value: {{ default "1" .Values.externalPostgresql.NODE_TLS_REJECT_UNAUTHORIZED | quote }}
             {{- else }}
-            - name: DB_HOST
+            - name: POSTGRES_HOST
               value: {{ template "eva.postgresql.host" . }}
-            - name: DB_PORT
+            - name: POSTGRES_PORT
               value: "{{ default "5432" .Values.postgresql.postgresqlPort }}"
-            - name: DB_NAME
+            - name: POSTGRES_DATABASE
               value: {{ default "eva" .Values.postgresql.postgresqlDatabase }}
-            - name: DB_USER
+            - name: POSTGRES_USER
               value: {{ default "eva" .Values.postgresql.postgresqlUser }}
-            - name: DB_SSL
+            - name: POSTGRES_SSL
               value: "{{ default "false" .Values.postgresql.ssl }}"
-            - name: DB_SSL_CA
+            - name: POSTGRES_SSL_CA
               value: "{{ default "" .Values.postgresql.ca }}"
-            - name: DB_PASS
+            - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                 {{- if .Values.postgresql.existingSecret }}
@@ -77,6 +79,15 @@ spec:
             {{- end }}
             - name: HA_ACTIVE
               value: {{ .Values.backend.replicaCount | int | ge 2 | quote }}
+            - name: SESSION_LIFETIME
+              value: {{ .Values.backend.config.session_lifetime }}
+            - name: LOG_REQUESTS
+              value: {{ .Values.backend.config.log_requests }}
+            - name: NFT_MODULE_URL
+              value: <TODO: ADD SERVICE NAME FOR NFT COMPONENT>
+            {{- with .Values.backend.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
     {{- with .Values.backend.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
