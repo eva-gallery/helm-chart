@@ -28,56 +28,18 @@ spec:
       serviceAccountName: {{ include "eva.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.frontend.podSecurityContext | nindent 8 }}
-      initContainers:
-        - name: {{ .Chart.Name }}-frontend-migrate-db
-          image: "{{ .Values.frontend.image.repository }}:{{ default "latest" .Values.frontend.image.tag }}"
-          imagePullPolicy: {{ default "IfNotPresent" .Values.frontend.image.imagePullPolicy }}
-          env:
-            {{- toYaml .Values.frontend.env | nindent 12 }}
-          command: [ "sh", "-c" ]
-          args: [
-            ""
-          ]
       containers:
         - name: {{ .Chart.Name }}-frontend
           securityContext:
             {{- toYaml .Values.frontend.securityContext | nindent 12 }}
-          image: "{{ .Values.frontend.image.repository }}:{{ default "latest" .Values.frontend.image.tag }}"
+          image: {{ .Values.frontend.image.repository }}:{{ default "latest" .Values.frontend.image.tag }}
           imagePullPolicy: {{ default "IfNotPresent" .Values.frontend.image.imagePullPolicy }}
           env:
-            - name: DB_TYPE
-              value: postgres
-            {{- if (.Values.externalPostgresql).databaseURL }}
-            - name: DATABASE_URL
-              value: {{ .Values.externalPostgresql.databaseURL }}
-            - name: NODE_TLS_REJECT_UNAUTHORIZED
-              value: {{ default "1" .Values.externalPostgresql.NODE_TLS_REJECT_UNAUTHORIZED | quote }}
-            {{- else }}
-            - name: DB_HOST
-              value: {{ template "eva.postgresql.host" . }}
-            - name: DB_PORT
-              value: "{{ default "5432" .Values.postgresql.postgresqlPort }}"
-            - name: DB_NAME
-              value: {{ default "eva" .Values.postgresql.postgresqlDatabase }}
-            - name: DB_USER
-              value: {{ default "eva" .Values.postgresql.postgresqlUser }}
-            - name: DB_SSL
-              value: "{{ default "false" .Values.postgresql.ssl }}"
-            - name: DB_SSL_CA
-              value: "{{ default "" .Values.postgresql.ca }}"
-            - name: DB_PASS
-              valueFrom:
-                secretKeyRef:
-                {{- if .Values.postgresql.existingSecret }}
-                  name: {{ .Values.postgresql.existingSecret }}
-                {{- else }}
-                  name: {{ template "eva.postgresql.secret" . }}
-                {{- end }}
-                  key: {{ template "eva.postgresql.secretKey" . }}
-            {{- end }}
             - name: HA_ACTIVE
               value: {{ .Values.frontend.replicaCount | int | ge 2 | quote }}
     {{- with .Values.frontend.volumeMounts }}
+            - name: NEXT_PUBLIC_BACKEND_URL
+              value: http://{{ include "eva.fullname" .}}-backend.{{ .Release.Namespace }}:80
           volumeMounts:
             {{- toYaml . | nindent 12 }}
     {{- end }}

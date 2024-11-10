@@ -17,14 +17,14 @@ spec:
   loadBalancerIP: {{ default "" .Values.frontend.service.loadBalancerIP }}
   {{- end }}
   ports:
-    - port: {{ default "80" .Values.frontend.service.port}}
-      targetPort: http
+    - port: {{ default 80 .Values.frontend.service.port}}
+      targetPort: 3000
       protocol: TCP
       name: http
-    - port: {{ default "443" .Values.frontend.service.httpsPort}}
-      targetPort: http
-      protocol: TCP
-      name: https
+    # - port: {{ default "443" .Values.frontend.service.httpsPort}}
+    #   targetPort: http
+    #   protocol: TCP
+    #   name: https
   selector:
     {{- include "eva.selectorLabels" . | nindent 4}}
     {{- include "eva.frontend.selectorLabels" . | nindent 4}}
