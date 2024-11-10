@@ -30,23 +30,23 @@ spec:
         {{- toYaml .Values.backend.podSecurityContext | nindent 8 }}
       initContainers:
         - name: {{ .Chart.Name }}-backend-migrate-db
-          image: "{{ .Values.backend.image.repository }}:{{ default "latest" .Values.backend.image.tag }}"
+          image: {{ .Values.backend.image.repository }}:{{ default "latest" .Values.backend.image.tag }}
           imagePullPolicy: {{ default "IfNotPresent" .Values.backend.image.imagePullPolicy }}
           env:
             {{- toYaml .Values.backend.env | nindent 12 }}
           command: [ "sh", "-c" ]
           args: [
-            ""
+            "npm run migration:run"
           ]
       containers:
         - name: {{ .Chart.Name }}-backend
           securityContext:
             {{- toYaml .Values.backend.securityContext | nindent 12 }}
-          image: "{{ .Values.backend.image.repository }}:{{ default "latest" .Values.backend.image.tag }}"
+          image: {{ .Values.backend.image.repository }}:{{ default "latest" .Values.backend.image.tag }}
           imagePullPolicy: {{ default "IfNotPresent" .Values.backend.image.imagePullPolicy }}
           env:
             - name: PORT
-              value: 80
+              value: {{ default 80 .Values.backend.service.port }}
             - name: DB_TYPE
               value: postgres
             {{- if (.Values.externalPostgresql).databaseURL }}
@@ -80,11 +80,11 @@ spec:
             - name: HA_ACTIVE
               value: {{ .Values.backend.replicaCount | int | ge 2 | quote }}
             - name: SESSION_LIFETIME
-              value: {{ .Values.backend.config.session_lifetime }}
+              value:  {{ default 600 .Values.backend.config.session_lifetime }}
             - name: LOG_REQUESTS
-              value: {{ .Values.backend.config.log_requests }}
+              value: {{ default true .Values.backend.config.log_requests }}
             - name: NFT_MODULE_URL
-              value: <TODO: ADD SERVICE NAME FOR NFT COMPONENT>
+              value: http://{{ include "eva.fullname" .}}-nft.{{ .Release.Namespace }}:80
             {{- with .Values.backend.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -94,7 +94,7 @@ spec:
     {{- end }}
           ports:
             - name: http
-              containerPort: 3000
+              containerPort: {{ default 80 .Values.backend.service.port }} 
               protocol: TCP
           livenessProbe:
             {{- toYaml .Values.backend.livenessProbe | nindent 12 }}

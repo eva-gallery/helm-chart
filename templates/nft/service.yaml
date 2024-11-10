@@ -1,0 +1,30 @@
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "eva.fullname" .}}-nft
+  labels: {{- include "eva.labels" . | nindent 4 }}
+  {{- with .Values.nft.service.annotations }}
+  annotations:
+    {{- range $key, $value := . }}
+      {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  {{- end }}
+spec:
+  type: {{ .Values.nft.service.type }}
+  {{- if eq .Values.nft.service.type "LoadBalancer" }}
+  loadBalancerIP: {{ default "" .Values.nft.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - port: {{ default "80" .Values.nft.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+    # - port: {{ default "443" .Values.nft.service.httpsPort}}
+    #   targetPort: http
+    #   protocol: TCP
+    #   name: https
+  selector:
+    {{- include "eva.selectorLabels" . | nindent 4}}
+    {{- include "eva.nft.selectorLabels" . | nindent 4}}

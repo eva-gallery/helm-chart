@@ -1,0 +1,102 @@
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "eva.fullname" . }}-nft
+  labels:
+    {{- include "eva.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.nft.replicaCount }}
+  revisionHistoryLimit: {{ .Values.nft.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      {{- include "eva.selectorLabels" . | nindent 6 }}
+      {{- include "eva.nft.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "eva.selectorLabels" . | nindent 8 }}
+        {{- include "eva.nft.selectorLabels" . | nindent 8 }}
+      annotations:
+        {{- toYaml .Values.nft.podAnnotations | nindent 8 }}
+    spec:
+    {{- with .Values.nft.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "eva.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.nft.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-nft
+          securityContext:
+            {{- toYaml .Values.nft.securityContext | nindent 12 }}
+          image: {{ .Values.nft.image.repository }}:{{ default "latest" .Values.nft.image.tag }}
+          imagePullPolicy: {{ default "IfNotPresent" .Values.nft.image.imagePullPolicy }}
+          env:
+            - name: PORT
+              value: {{ default 80 .Values.nft.service.port }}
+            - name: BACKEND_URL
+              value: http://{{ include "eva.fullname" .}}-backend.{{ .Release.Namespace }}:80
+            - name: WSS_ENDPOINT
+              value: {{ default "wss://kusama-asset-hub-rpc.polkadot.io" .Values.nft.config.wss_rpc_provider }}
+            - name: WALLET_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.nft.walletSecret.name }}
+                  key: {{ .Values.nft.walletSecret.key }}
+            - name: EVA_GALLERY_COLLECTION 
+              value: {{ .Values.nft.config.collection_id }}
+            - name: IPFS_NAME
+              value: {{ default "ipfs" .Values.nft.service.port }}
+            - name: IPFS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.nft.ipfsCredentialsSecret.name }}
+                  key: {{ .Values.nft.ipfsCredentialsSecret.keyUrl }}
+            - name: IPFS_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.nft.ipfsCredentialsSecret.name }}
+                  key: {{ .Values.nft.ipfsCredentialsSecret.keyUser }}
+            - name: IPFS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.nft.ipfsCredentialsSecret.name }}
+                  key: {{ .Values.nft.ipfsCredentialsSecret.key }}
+            {{- with .Values.nft.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+    {{- with .Values.nft.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+    {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ default 80 .Values.nft.service.port }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.nft.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.nft.readinessProbe | nindent 12 }}
+          startupProbe:
+            {{- toYaml .Values.nft.startupProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.nft.resources | nindent 12 }}
+      {{- with .Values.nft.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.nft.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.nft.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.nft.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
