@@ -68,6 +68,14 @@ app.kubernetes.io/part-of: eva-gallery
 {{- end -}}
 
 {{/*
+Selector labels for the nft component
+*/}}
+{{- define "eva.nft.selectorLabels" -}}
+app.kubernetes.io/component: nft
+app.kubernetes.io/part-of: eva-gallery
+{{- end -}}
+{{/*
+
 Create the name of the service account to use
 */}}
 {{- define "eva.serviceAccountName" -}}
