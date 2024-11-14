@@ -49,12 +49,6 @@ spec:
               value: {{ default 80 .Values.backend.service.port }}
             - name: DB_TYPE
               value: postgres
-            {{- if (.Values.externalPostgresql).databaseURL }}
-            - name: DATABASE_URL
-              value: {{ .Values.externalPostgresql.databaseURL }}
-            - name: NODE_TLS_REJECT_UNAUTHORIZED
-              value: {{ default "1" .Values.externalPostgresql.NODE_TLS_REJECT_UNAUTHORIZED | quote }}
-            {{- else }}
             - name: POSTGRES_HOST
               value: {{ template "eva.postgresql.host" . }}
             - name: POSTGRES_PORT
@@ -76,7 +70,6 @@ spec:
                   name: {{ template "eva.postgresql.secret" . }}
                 {{- end }}
                   key: {{ template "eva.postgresql.secretKey" . }}
-            {{- end }}
             - name: HA_ACTIVE
               value: {{ .Values.backend.replicaCount | int | ge 2 | quote }}
             - name: SESSION_LIFETIME
@@ -85,6 +78,8 @@ spec:
               value: {{ default true .Values.backend.config.log_requests }}
             - name: NFT_MODULE_URL
               value: http://{{ include "eva.fullname" .}}-nft.{{ .Release.Namespace }}:80
+            - name: SUBSCAN_URL
+              value: {{.Values.backend.config.subscan_url }}
             {{- with .Values.backend.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}

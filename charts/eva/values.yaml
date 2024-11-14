@@ -13,7 +13,7 @@ serviceAccount:
 
 frontend:
   image:
-    repository: evagalleryone/evagallery
+    repository: evagalleryone/gallery
     tag: latest
     imagePullPolicy: IfNotPresent
 
@@ -64,8 +64,6 @@ frontend:
     # runAsNonRoot: true
     # runAsUser: 1000
 
-
-
   volumeMounts: {}
 
   livenessProbe:
@@ -88,7 +86,6 @@ frontend:
       path: /healthz
       port: http
 
-
 backend:
   image:
     repository: evagalleryone/backend
@@ -98,16 +95,9 @@ backend:
   config:
     session_lifetime: 600
     log_requests: true
+    subscan_url: https://assethub-kusama.subscan.io
 
-  extraEnv:
-    # - name: EVA_GALLERY_COLLECTION
-    #   value: 465  # <TODO: setup manually and insert here>
-    # - name: WSS_PROVIDER
-    #   value: wss://kusama-asset-hub-rpc.polkadot.io
-    # - name: WALLET_ADDRESS
-    #   value: <TODO: Add wallet address>
-    # - name: SUBSCAN_URL
-    #   value: https://assethub-kusama.subscan.io
+  extraEnv: []
 
   replicaCount: 1
   service:
@@ -287,13 +277,6 @@ ingress:
   #      - chart-example.local
 
 
-## This will override the postgresql chart values
-# externalPostgresql:
-#   # note: ?sslmode=require => ?ssl=true
-#   databaseURL: postgresql://postgres:postgres@postgres:5432/wiki?ssl=true
-#   # For self signed CAs, like DigitalOcean
-#   NODE_TLS_REJECT_UNAUTHORIZED: "0"
-
 ## Configuration values for the postgresql dependency.
 ## ref: https://github.com/kubernetes/charts/blob/master/stable/postgresql/README.md
 ##
@@ -301,18 +284,63 @@ postgresql:
   ## Use the PostgreSQL chart dependency.
   ## Set to false if bringing your own PostgreSQL, and set secret value postgresql-uri.
   ##
-  enabled: false
+  enabled: true
+  ## ssl enforce SSL communication with PostgresSQL
+  ## Default to false
+  ##
   # ssl: false
+  ## ca Certificate of Authority
+  ## Default to empty, point to location of CA
+  ##
   # ca: "path to ca"
+  ## postgresqlHost override postgres database host
+  ## Default to postgres
+  ##
   # postgresqlHost: postgres
+  ## postgresqlPort port for postgres
+  ## Default to 5432
+  ##
   # postgresqlPort: 5432
+  ## PostgreSQL fullname Override
+  ## Default to wiki-postgresql unless fullname override is set for Chart
+  ##
   fullnameOverride: ""
+  ## PostgreSQL User to create.
+  ##
   postgresqlUser: postgres
-  postgresqlDatabase: wiki
+  ## PostgreSQL Database to create.
+  ##
+  postgresqlDatabase: evabackend
+  ## Persistent Volume Storage configuration.
+  ## ref: https://kubernetes.io/docs/user-guide/persistent-volumes
+  ##
+  #
+  ## Existing secret that holds the postgres user password
+  # existingSecret: ""
+  #
+  ## Key in the existing secret that holds the postgres user password
+  # existingSecretKey: ""
+  #
   replication:
+    ## Enable PostgreSQL replication (primary/secondary)
+    ##
     enabled: false
   persistence:
+    ## Enable PostgreSQL persistence using Persistent Volume Claims.
+    ##
     enabled: true
+    ## concourse data Persistent Volume Storage Class
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    ##
     # storageClass: "-"
+    ## Persistent Volume Access Mode.
+    ##
     accessMode: ReadWriteOnce
-    size: 8Gi
+    ## Persistent Volume Storage Size.
+    ##
+    size: 10Gi
+
