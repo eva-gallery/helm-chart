@@ -184,8 +184,8 @@ nft:
     keyUrl: url
 
   config:
-    wss_rpc_provider: wss://kusama-asset-hub-rpc.polkadot.io
-    # collection_id: 456    # E.V.A. gallery collection ID
+    wss_rpc_provider: wss://sys.ibp.network/asset-hub-paseo
+    collection_id: 456    # E.V.A. gallery collection ID
     ipfs_name: ipfs
 
   extraEnv: []

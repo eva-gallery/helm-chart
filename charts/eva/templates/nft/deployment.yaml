@@ -48,14 +48,12 @@ spec:
                   key: {{ .Values.nft.walletSecret.key }}
             - name: EVA_GALLERY_COLLECTION 
               value: {{ .Values.nft.config.collection_id }}
-            - name: IPFS_NAME
-              value: {{ default "ipfs" .Values.nft.service.port }}
             - name: IPFS_URL
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.nft.ipfsCredentialsSecret.name }}
                   key: {{ .Values.nft.ipfsCredentialsSecret.keyUrl }}
-            - name: IPFS_USER
+            - name: IPFS_NAME
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.nft.ipfsCredentialsSecret.name }}
