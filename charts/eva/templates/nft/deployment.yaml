@@ -36,7 +36,7 @@ spec:
           imagePullPolicy: {{ default "IfNotPresent" .Values.nft.image.imagePullPolicy }}
           env:
             - name: PORT
-              value: {{ default 80 .Values.nft.service.port }}
+              value: {{ default "80" .Values.nft.service.port | quote }}
             - name: BACKEND_URL
               value: http://{{ include "eva.fullname" .}}-backend.{{ .Release.Namespace }}:80
             - name: WSS_ENDPOINT
@@ -47,7 +47,7 @@ spec:
                   name: {{ .Values.nft.walletSecret.name }}
                   key: {{ .Values.nft.walletSecret.key }}
             - name: EVA_GALLERY_COLLECTION 
-              value: {{ .Values.nft.config.collection_id }}
+              value: {{ .Values.nft.config.collection_id | quote }}
             - name: IPFS_URL
               valueFrom:
                 secretKeyRef:
@@ -62,7 +62,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.nft.ipfsCredentialsSecret.name }}
-                  key: {{ .Values.nft.ipfsCredentialsSecret.key }}
+                  key: {{ .Values.nft.ipfsCredentialsSecret.keyPassword }}
             {{- with .Values.nft.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}

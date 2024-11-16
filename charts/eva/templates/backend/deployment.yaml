@@ -32,8 +32,6 @@ spec:
         - name: {{ .Chart.Name }}-backend-migrate-db
           image: {{ .Values.backend.image.repository }}:{{ default "latest" .Values.backend.image.tag }}
           imagePullPolicy: {{ default "IfNotPresent" .Values.backend.image.imagePullPolicy }}
-          env:
-            {{- toYaml .Values.backend.env | nindent 12 }}
           command: [ "sh", "-c" ]
           args: [
             "npm run migration:run"
@@ -46,7 +44,7 @@ spec:
           imagePullPolicy: {{ default "IfNotPresent" .Values.backend.image.imagePullPolicy }}
           env:
             - name: PORT
-              value: {{ default 80 .Values.backend.service.port }}
+              value: {{ default "80" .Values.backend.service.port | quote }}
             - name: DB_TYPE
               value: postgres
             - name: POSTGRES_HOST
@@ -73,9 +71,9 @@ spec:
             - name: HA_ACTIVE
               value: {{ .Values.backend.replicaCount | int | ge 2 | quote }}
             - name: SESSION_LIFETIME
-              value:  {{ default 600 .Values.backend.config.session_lifetime }}
+              value:  {{ default "600" .Values.backend.config.session_lifetime | quote}}
             - name: LOG_REQUESTS
-              value: {{ default true .Values.backend.config.log_requests }}
+              value: {{ default "true" .Values.backend.config.log_requests | quote}}
             - name: NFT_MODULE_URL
               value: http://{{ include "eva.fullname" .}}-nft.{{ .Release.Namespace }}:80
             - name: SUBSCAN_URL

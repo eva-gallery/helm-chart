@@ -34,6 +34,8 @@ spec:
             {{- toYaml .Values.frontend.securityContext | nindent 12 }}
           image: {{ .Values.frontend.image.repository }}:{{ default "latest" .Values.frontend.image.tag }}
           imagePullPolicy: {{ default "IfNotPresent" .Values.frontend.image.imagePullPolicy }}
+          command: ["node"]
+          args: ["server.js"]
           env:
             - name: HA_ACTIVE
               value: {{ .Values.frontend.replicaCount | int | ge 2 | quote }}
