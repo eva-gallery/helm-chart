@@ -257,6 +257,86 @@ nft:
       path: /readyz
       port: http
 
+ai:
+  image:
+    repository: evagalleryone/ai
+    tag: latest
+    imagePullPolicy: IfNotPresent
+
+  config:
+    # session_lifetime: 600
+    # log_requests: true
+    # subscan_url: https://assethub-kusama.subscan.io
+
+  extraEnv: []
+
+  replicaCount: 1
+  service:
+    port: 80
+    type: ClusterIP
+    # --- service type LoadBalancer
+    # type: LoadBalancer
+    # httpsPort: 443
+    # annotations: {}
+    # loadBalancerIP: 172.16.0.1
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  volumeMounts: []
+
+  volumes: []
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+  volumeMounts: {}
+
+  livenessProbe:
+    httpGet:
+      path: /healthyz
+      port: http
+
+  readinessProbe:
+    httpGet:
+      path: /readyz
+      port: http
+
+  startupProbe:
+    initialDelaySeconds: 15
+    periodSeconds: 5
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 60
+    httpGet:
+      path: /healthz
+      port: http
+
 ingress:
   enabled: true
   className: ""
@@ -273,7 +353,6 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
-
 
 ## Configuration values for the postgresql dependency.
 ## ref: https://github.com/kubernetes/charts/blob/master/stable/postgresql/README.md

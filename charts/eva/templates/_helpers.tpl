@@ -74,8 +74,16 @@ Selector labels for the nft component
 app.kubernetes.io/component: nft
 app.kubernetes.io/part-of: eva-gallery
 {{- end -}}
-{{/*
 
+{{/*
+Selector labels for the AI component
+*/}}
+{{- define "eva.ai.selectorLabels" -}}
+app.kubernetes.io/component: ai
+app.kubernetes.io/part-of: eva-gallery
+{{- end -}}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "eva.serviceAccountName" -}}
