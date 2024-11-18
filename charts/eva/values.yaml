@@ -342,3 +342,11 @@ postgresql:
     ##
     size: 10Gi
 
+
+## Configuration values for the postgresql dependency.
+## ref: https://artifacthub.io/packages/helm/fairwinds-incubator/timescaledb-single
+##
+timescaledb-single:
+  enabled: true
+  secrets:
+    credentialsSecretName: ""

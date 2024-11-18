@@ -2,7 +2,7 @@
 
 apiVersion: v2
 name: eva
-version: 0.0.7
+version: 0.0.8
 AppVersion: 0.1.0
 description: The most open and well playful gallery with NFT and AI support in the web.
 keywords:
@@ -18,6 +18,10 @@ dependencies:
     version: 16.1.0
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
+  - name: timescaledb-single
+    version: 0.33.7
+    repository: https://charts.fairwinds.com/incubator
+    condition: timescaledb-single.enabled
 home: https://evagallery.eu
 icon: https://evagallery.eu/logo.jpg
 sources:
