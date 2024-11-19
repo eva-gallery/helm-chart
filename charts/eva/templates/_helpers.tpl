@@ -138,3 +138,24 @@ Set postgres secretKey
 {{- default "postgresql-password" .Values.postgresql.existingSecretKey | quote -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Set timescaledb host
+*/}}
+{{- define "eva.timescaledb.host" -}}
+{{- .Values.timescaledb.fullnameOverride | quote -}}
+{{- end -}}
+
+{{/*
+Set timescaledb secret
+*/}}
+{{- define "eva.timescaledb.secret" -}}
+{{- .Values.timescaledb.fullnameOverride -}}-credentials
+{{- end -}}
+
+{{/*
+Set timescaledb secretKey
+*/}}
+{{- define "eva.timescaledb.secretKey" -}}
+{{- printf "PATRONI_SUPERUSER_PASSWORD" -}}
+{{- end -}}

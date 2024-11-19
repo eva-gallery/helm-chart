@@ -43,8 +43,21 @@ spec:
           image: {{ .Values.ai.image.repository }}:{{ default "latest" .Values.ai.image.tag }}
           imagePullPolicy: {{ default "IfNotPresent" .Values.ai.image.imagePullPolicy }}
           env:
-            - name: PORT
-              value: {{ default "80" .Values.ai.service.port | quote }}
+            - name: EVA_AI_BENTOML__API__WORKERS
+              value: {{ default "10" .Values.ai.config.workers | quote }}
+            - name: EVA_AI_POSTGRES__HOST
+              value: {{ template "eva.timescaledb.host" . }}
+            - name: EVA_AI_POSTGRES__PORT
+              value: "5432"
+            - name: EVA_AI_POSTGRES__USER
+              value: "postgres"
+            - name: EVA_AI_POSTGRES__DB
+              value: postgres
+            - name: EVA_AI_POSTGRES__PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "eva.timescaledb.secret" . }}
+                  key: {{ template "eva.timescaledb.secretKey" . }}
             {{- with .Values.ai.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}

@@ -20,10 +20,10 @@ frontend:
   replicaCount: 1
   service:
     port: 80
-    type: ClusterIP
+    type: ClusterIPEVA_AI_BENTOML__API__WORKERS
     # --- service type LoadBalancer
     # type: LoadBalancer
-    # httpsPort: 443
+    # httpsPort: 443EVA_AI_BENTOML__API__WORKERS
     # annotations: {}
     # loadBalancerIP: 172.16.0.1
 
@@ -264,9 +264,7 @@ ai:
     imagePullPolicy: IfNotPresent
 
   config:
-    # session_lifetime: 600
-    # log_requests: true
-    # subscan_url: https://assethub-kusama.subscan.io
+    workers: 10
 
   extraEnv: []
 
@@ -425,7 +423,8 @@ postgresql:
 ## Configuration values for the postgresql dependency.
 ## ref: https://artifacthub.io/packages/helm/fairwinds-incubator/timescaledb-single
 ##
-timescaledb-single:
+timescaledb:
   enabled: true
-  secrets:
-    credentialsSecretName: ""
+  fullnameOverride: "timescaledb"
+  # secrets:
+  #   credentialsSearetName: ""

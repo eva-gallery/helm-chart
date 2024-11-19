@@ -2,7 +2,7 @@
 
 apiVersion: v2
 name: eva
-version: 0.0.8
+version: 0.0.9
 AppVersion: 0.1.0
 description: The most open and well playful gallery with NFT and AI support in the web.
 keywords:
@@ -22,6 +22,7 @@ dependencies:
     version: 0.33.7
     repository: https://charts.fairwinds.com/incubator
     condition: timescaledb-single.enabled
+    alias: timescaledb
 home: https://evagallery.eu
 icon: https://evagallery.eu/logo.jpg
 sources:
