@@ -20,10 +20,10 @@ frontend:
   replicaCount: 1
   service:
     port: 80
-    type: ClusterIPEVA_AI_BENTOML__API__WORKERS
+    type: ClusterIP
     # --- service type LoadBalancer
     # type: LoadBalancer
-    # httpsPort: 443EVA_AI_BENTOML__API__WORKERS
+    # httpsPort: 443
     # annotations: {}
     # loadBalancerIP: 172.16.0.1
 
@@ -163,7 +163,7 @@ backend:
     successThreshold: 1
     failureThreshold: 60
     httpGet:
-      path: /healthz
+      path: /readyz
       port: http
 
 nft:

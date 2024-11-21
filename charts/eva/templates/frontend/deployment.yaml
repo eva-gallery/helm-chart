@@ -39,9 +39,13 @@ spec:
           env:
             - name: HA_ACTIVE
               value: {{ .Values.frontend.replicaCount | int | ge 2 | quote }}
-    {{- with .Values.frontend.volumeMounts }}
             - name: NEXT_PUBLIC_BACKEND_URL
               value: http://{{ include "eva.fullname" .}}-backend.{{ .Release.Namespace }}:80
+            {{- range .Values.ingress.hosts }}
+            - name: NEXT_PUBLIC_URL
+              value: {{ .host }} 
+            {{- end }}
+    {{- with .Values.frontend.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
     {{- end }}
