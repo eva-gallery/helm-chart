@@ -33,7 +33,7 @@ entries:
     version: 1.0.0
   - apiVersion: v2
     appVersion: 0.1.0
-    created: "2024-11-21T16:27:08.54207683Z"
+    created: "2024-11-21T16:46:20.049602316Z"
     dependencies:
     - condition: postgresql.enabled
       name: postgresql
@@ -46,7 +46,7 @@ entries:
       version: 0.33.7
     description: The most open and well playful gallery with NFT and AI support in
       the web.
-    digest: 79c3154fe0ca83e7934ab588f1f0cfbdd194c57821612f04b6cedee4f5b74a62
+    digest: 49a68bb73bb7a5a60aa349ad1f87d61ee2d8b5b5f05e7d71bc59c17daf4ebb21
     home: https://evagallery.eu
     icon: https://evagallery.eu/logo.jpg
     keywords:
@@ -450,4 +450,4 @@ entries:
     urls:
     - https://eva-gallery.github.io/helm-chart/eva-0.0.1.tgz
     version: 0.0.1
-generated: "2024-11-21T16:27:08.532408002Z"
+generated: "2024-11-21T16:46:20.040137568Z"
