@@ -73,7 +73,7 @@ frontend:
 
   readinessProbe:
     httpGet:
-      path: /healthyz
+      path: /readyz
       port: http
 
   startupProbe:
@@ -83,7 +83,7 @@ frontend:
     successThreshold: 1
     failureThreshold: 60
     httpGet:
-      path: /healthyz
+      path: /readyz
       port: http
 
 backend:
@@ -317,7 +317,7 @@ ai:
 
   livenessProbe:
     httpGet:
-      path: /healthyz
+      path: /healthz
       port: http
 
   readinessProbe:
@@ -332,7 +332,7 @@ ai:
     successThreshold: 1
     failureThreshold: 60
     httpGet:
-      path: /healthz
+      path: /readyz
       port: http
 
 ingress:

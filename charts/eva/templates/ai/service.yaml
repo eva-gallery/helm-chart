@@ -17,7 +17,7 @@ spec:
   loadBalancerIP: {{ default "" .Values.ai.service.loadBalancerIP }}
   {{- end }}
   ports:
-    - port: {{ default "80" .Values.ai.service.port }}
+    - port: {{ default 80 .Values.ai.service.port }}
       targetPort: http
       protocol: TCP
       name: http

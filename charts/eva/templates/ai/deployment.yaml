@@ -35,6 +35,8 @@ spec:
           image: {{ .Values.ai.image.repository }}:{{ default "latest" .Values.ai.image.tag }}
           imagePullPolicy: {{ default "IfNotPresent" .Values.ai.image.imagePullPolicy }}
           env:
+            - name: BENTOML_PORT
+              value: {{ default "80" .Values.ai.service.port | quote }}
             - name: EVA_AI_BENTOML__API__WORKERS
               value: {{ default "10" .Values.ai.config.workers | quote }}
             - name: EVA_AI_POSTGRES__HOST
