@@ -37,6 +37,10 @@ spec:
           env:
             - name: BENTOML_PORT
               value: {{ default "80" .Values.ai.service.port | quote }}
+            - name: ENV_FOR_DYNACONF
+              value: "production"
+            - name: EVA_AI_MODEL__CACHE_DIR
+              value: "/models"
             - name: EVA_AI_BENTOML__API__WORKERS
               value: {{ default "10" .Values.ai.config.workers | quote }}
             - name: EVA_AI_POSTGRES__HOST
@@ -55,8 +59,10 @@ spec:
             {{- with .Values.ai.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
-    {{- with .Values.ai.volumeMounts }}
           volumeMounts:
+            - mountPath: /models
+              name: models
+    {{- with .Values.ai.volumeMounts }}
             {{- toYaml . | nindent 12 }}
     {{- end }}
           ports:
@@ -83,7 +89,10 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.ai.volumes }}
       volumes:
+        - name: models
+          emptyDir:
+            sizeLimit: {{ .Values.ai.persistence.size }}
+    {{- with .Values.ai.volumes }}
         {{- toYaml . | nindent 8 }}
     {{- end }}

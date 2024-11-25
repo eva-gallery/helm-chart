@@ -42,11 +42,11 @@ spec:
             - name: POSTGRES_HOST
               value: {{ template "eva.postgresql.host" . }}
             - name: POSTGRES_PORT
-              value: "{{ default "5432" .Values.postgresql.postgresqlPort }}"
+              value: "{{ default "5432" .Values.postgresql.containerPorts.postgresql }}"
             - name: POSTGRES_DATABASE
-              value: {{ default "eva" .Values.postgresql.postgresqlDatabase }}
+              value: {{ default "evagallery" .Values.postgresql.auth.database }}
             - name: POSTGRES_USER
-              value: {{ default "eva" .Values.postgresql.postgresqlUser }}
+              value: {{ default "postgres" .Values.postgresql.auth.user }}
             - name: POSTGRES_SSL
               value: "{{ default "false" .Values.postgresql.ssl }}"
             - name: POSTGRES_SSL_CA
