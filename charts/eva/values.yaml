@@ -97,7 +97,22 @@ backend:
     log_requests: true
     subscan_url: https://assethub-kusama.subscan.io
 
-  extraEnv: []
+
+  # the secret containing Google E-mail registration data in the following format
+  #
+  # secretName:
+  #   clientId: ...
+  #   clientSecret: ...
+  #   email: ...
+  #   emailRefreshToken: ...
+  #   mailbox: ...
+  emailRegistrationGoogleSecret: ""
+
+  # these values must have an override for auth and registration to work !
+  extraEnv:
+    # Server domain used for auth callbacks
+    - name: AUTH_CALLBACK_DOMAIN
+      value: http://localhost:3000
 
   replicaCount: 1
   service:

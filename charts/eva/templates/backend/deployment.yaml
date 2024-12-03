@@ -70,6 +70,30 @@ spec:
               value: http://{{ include "eva.fullname" .}}-nft.{{ .Release.Namespace }}:80
             - name: SUBSCAN_URL
               value: {{.Values.backend.config.subscan_url }}
+            - name: FRONTEND_URL
+              value: http://{{ include "eva.fullname" .}}-frontend.{{ .Release.Namespace }}:3000
+            - name: AUTH_FAILURE_ROUTE
+              value: /failure
+            - name: AUTH_CREATE_USER_ROUTE
+              value: /create-user
+            - name: AUTH_RESET_USER_ROUTE
+              value: /reset-user
+            {{- if .Values.backend.emailRegistrationGoogleSecret }}
+            - name: GOOGLE_CLIENT_ID
+              value: {{ .Values.backend.emailRegistrationGoogleSecret.clientId }}
+            # Google app client secret
+            - name: GOOGLE_CLIENT_SECRET
+              value: {{ .Values.backend.emailRegistrationGoogleSecret.clientSecret }}
+            # Google email used for sending emails
+            - name: GOOGLE_EMAIL
+              value: {{ .Values.backend.emailRegistrationGoogleSecret.email }}
+            # Google email refresh token
+            - name: GOOGLE_EMAIL_REFRESH_TOKEN
+              value: {{ .Values.backend.emailRegistrationGoogleSecret.emailRefreshToken }}
+            # Google email mailbox (used for personalized 'from' in emails)
+            - name: GOOGLE_MAILBOX
+              value: {{ .Values.backend.emailRegistrationGoogleSecret.mailbox }}
+            {{- end -}}
             {{- with .Values.backend.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
