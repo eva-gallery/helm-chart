@@ -37,6 +37,8 @@ spec:
           env:
             - name: BENTOML_PORT
               value: {{ default "80" .Values.ai.service.port | quote }}
+            - name: EVA_AI_JWT_SECRET
+              value:  {{ template "eva.tokens.backendAi" . }}
             - name: ENV_FOR_DYNACONF
               value: "production"
             - name: EVA_AI_MODEL__CACHE_DIR

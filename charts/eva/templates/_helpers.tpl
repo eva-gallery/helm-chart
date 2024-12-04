@@ -84,6 +84,13 @@ app.kubernetes.io/part-of: eva-gallery
 {{- end -}}
 
 {{/*
+JWT token for the backend and AI component
+*/}}
+{{- define "eva.tokens.backendAi" -}}
+asdhjfbadsjfhqdadf84n234
+{{- end -}}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "eva.serviceAccountName" -}}

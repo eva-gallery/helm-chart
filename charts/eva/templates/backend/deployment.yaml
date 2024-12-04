@@ -37,6 +37,10 @@ spec:
           env:
             - name: PORT
               value: {{ default "80" .Values.backend.service.port | quote }}
+            - name: AI_ACCESS_TOKEN_SECRET
+              value:  {{ template "eva.tokens.backendAi" . }}
+            - name: AI_MODULE_URL
+              value: http://{{ include "eva.fullname" .}}-ai.{{ .Release.Namespace }}:80
             - name: DB_TYPE
               value: postgres
             - name: POSTGRES_HOST
