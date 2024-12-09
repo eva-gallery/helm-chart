@@ -97,10 +97,9 @@ backend:
     log_requests: true
     subscan_url: https://assethub-kusama.subscan.io
 
-
   # the secret containing Google E-mail registration data in the following format
   #
-  # secretName:
+  # emailRegistrationGoogleSecret:
   #   clientId: ...
   #   clientSecret: ...
   #   email: ...
