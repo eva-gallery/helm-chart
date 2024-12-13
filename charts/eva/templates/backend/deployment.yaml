@@ -40,7 +40,7 @@ spec:
             - name: AI_ACCESS_TOKEN_SECRET
               value:  {{ template "eva.tokens.backendAi" . }}
             - name: AI_MODULE_URL
-              value: http://{{ include "eva.fullname" .}}-ai.{{ .Release.Namespace }}:80
+              value: http://{{ include "eva.fullname" .}}-ai.{{ .Release.Namespace }}:{{ default 80 .Values.ai.service.port }}
             - name: SUBSCAN_URL
               value: {{.Values.backend.config.subscan_url }}
             - name: DB_TYPE
@@ -77,11 +77,11 @@ spec:
             - name: FRONTEND_URL
               value: http://{{ include "eva.fullname" .}}-frontend.{{ .Release.Namespace }}:3000
             - name: AUTH_FAILURE_ROUTE
-              value: /failure
+              value: admin/user/failure
             - name: AUTH_CREATE_USER_ROUTE
-              value: /create-user
+              value: admin/user/create
             - name: AUTH_RESET_USER_ROUTE
-              value: /reset-user
+              value: admin/user/newpassword
             {{- if .Values.backend.emailRegistrationGoogleSecret }}
             - name: GOOGLE_CLIENT_ID
               valueFrom:
