@@ -68,6 +68,29 @@ app.kubernetes.io/part-of: eva-gallery
 {{- end -}}
 
 {{/*
+Selector labels for the nft component
+*/}}
+{{- define "eva.nft.selectorLabels" -}}
+app.kubernetes.io/component: nft
+app.kubernetes.io/part-of: eva-gallery
+{{- end -}}
+
+{{/*
+Selector labels for the AI component
+*/}}
+{{- define "eva.ai.selectorLabels" -}}
+app.kubernetes.io/component: ai
+app.kubernetes.io/part-of: eva-gallery
+{{- end -}}
+
+{{/*
+JWT token for the backend and AI component
+*/}}
+{{- define "eva.tokens.backendAi" -}}
+asdhjfbadsjfhqdadf84n234
+{{- end -}}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "eva.serviceAccountName" -}}
@@ -105,10 +128,10 @@ Set postgres host
 Set postgres secret
 */}}
 {{- define "eva.postgresql.secret" -}}
-{{- if .Values.postgresql.enabled -}}
-{{- template "eva.postgresql.fullname" . -}}
+{{- if .Values.postgresql.auth.existingSecret -}}
+{{- .Values.postgresql.auth.existingSecret | quote -}}
 {{- else -}}
-{{- template "eva.fullname" . -}}
+{{- template "eva.postgresql.fullname" . -}}
 {{- end -}}
 {{- end -}}
 
@@ -116,9 +139,26 @@ Set postgres secret
 Set postgres secretKey
 */}}
 {{- define "eva.postgresql.secretKey" -}}
-{{- if .Values.postgresql.enabled -}}
-"postgresql-password"
-{{- else -}}
-{{- default "postgresql-password" .Values.postgresql.existingSecretKey | quote -}}
+"postgres-password"
 {{- end -}}
+
+{{/*
+Set timescaledb host
+*/}}
+{{- define "eva.timescaledb.host" -}}
+{{- .Values.timescaledb.fullnameOverride | quote -}}
+{{- end -}}
+
+{{/*
+Set timescaledb secret
+*/}}
+{{- define "eva.timescaledb.secret" -}}
+{{- .Values.timescaledb.fullnameOverride -}}-credentials
+{{- end -}}
+
+{{/*
+Set timescaledb secretKey
+*/}}
+{{- define "eva.timescaledb.secretKey" -}}
+{{- printf "PATRONI_SUPERUSER_PASSWORD" -}}
 {{- end -}}
