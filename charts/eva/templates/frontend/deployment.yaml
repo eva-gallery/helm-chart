@@ -40,6 +40,12 @@ spec:
             - name: HA_ACTIVE
               value: {{ .Values.frontend.replicaCount | int | ge 2 | quote }}
             - name: NEXT_PUBLIC_BACKEND_URL
+            {{- if .Values.frontend.config.public_backend_url }}
+              value: {{ .Values.frontend.config.public_backend_url }} 
+            {{- else }}
+              value: http://{{ include "eva.fullname" .}}-backend.{{ .Release.Namespace }}:80
+            {{- end }}
+            - name: INTERNAL_BACKEND_URL
               value: http://{{ include "eva.fullname" .}}-backend.{{ .Release.Namespace }}:80
             {{- range .Values.ingress.hosts }}
             - name: NEXT_PUBLIC_URL

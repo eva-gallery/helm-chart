@@ -26,6 +26,9 @@ frontend:
     # httpsPort: 443
     # annotations: {}
     # loadBalancerIP: 172.16.0.1
+  
+  config:
+    public_backend_url: ""
 
   env: {}
 
