@@ -284,8 +284,9 @@ ai:
     workers: 10
 
   persistence:
+    enabled: true
     # storageClass: "-"
-    # accessMode: ReadWriteMany
+    accessMode: ReadWriteMany
     size: 64Gi
 
   extraEnv: []

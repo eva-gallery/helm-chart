@@ -92,9 +92,14 @@ spec:
         {{- toYaml . | nindent 8 }}
     {{- end }}
       volumes:
-        - name: models
-          emptyDir:
-            sizeLimit: {{ .Values.ai.persistence.size }}
+      - name: models
+        {{- if .Values.ai.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ include "eva.fullname" . }}-ai-model-cache
+        {{- else }}
+        emptyDir:
+          sizeLimit: {{ .Values.ai.persistence.size }}
+        {{- end }}
     {{- with .Values.ai.volumes }}
         {{- toYaml . | nindent 8 }}
     {{- end }}
