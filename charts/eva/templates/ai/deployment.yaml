@@ -43,7 +43,7 @@ spec:
               value: "production"
             - name: EVA_AI_MODEL__CACHE_DIR
               value: "/models"
-            - name: EVA_AI_BENTOML__API__WORKERS
+            - name: EVA_AI_BENTOML__SERVICE__API__WORKERS
               value: {{ default "10" .Values.ai.config.workers | quote }}
             - name: EVA_AI_POSTGRES__HOST
               value: {{ template "eva.timescaledb.host" . }}
