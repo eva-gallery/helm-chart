@@ -116,6 +116,12 @@ backend:
     - name: AUTH_CALLBACK_DOMAIN
       value: http://localhost:3000
 
+  persistence:
+    enabled: true
+    # storageClass: "-"
+    accessMode: ReadWriteMany
+    size: 64Gi
+
   replicaCount: 1
   service:
     port: 80

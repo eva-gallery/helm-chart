@@ -116,10 +116,12 @@ spec:
             {{- with .Values.backend.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
-    {{- with .Values.backend.volumeMounts }}
           volumeMounts:
+            - mountPath: /static-cache
+              name: static-cache
+     {{- with .Values.backend.volumeMounts }}
             {{- toYaml . | nindent 12 }}
-    {{- end }}
+     {{- end }}
           ports:
             - name: http
               containerPort: {{ default 80 .Values.backend.service.port }} 
@@ -144,7 +146,15 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.backend.volumes }}
       volumes:
+        - name: static-cache
+        {{- if .Values.backend.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "eva.fullname" . }}-backend-static-cache
+        {{- else }}
+          emptyDir:
+            sizeLimit: {{ .Values.backend.persistence.size }}
+        {{- end }}
+    {{- with .Values.backend.volumes }}
         {{- toYaml . | nindent 8 }}
     {{- end }}

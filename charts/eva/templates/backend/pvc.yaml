@@ -1,0 +1,18 @@
+{{- if .Values.backend.persistence.enabled }}
+kind: PersistentVolumeClbackendm
+apiVersion: v1
+metadata:
+  name: {{ include "eva.fullname" . }}-backend-static-cache
+  labels:
+    {{- include "eva.selectorLabels" . | nindent 4 }}
+    {{- include "eva.backend.selectorLabels" . | nindent 4 }}
+spec:
+  {{- if .Values.backend.persistence.storageClass }}
+  storageClassName: {{ .Values.backend.persistence.storageClass }}
+  {{- end }}
+  accessModes:
+    - {{ .Values.backend.persistence.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.backend.persistence.size | quote }}
+{{- end }}
