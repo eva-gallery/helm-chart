@@ -82,6 +82,8 @@ spec:
               value: admin/user/create
             - name: AUTH_RESET_USER_ROUTE
               value: admin/user/newpassword
+            - name: STATIC_FILE_ROOT
+              value: /static-cache
             {{- if .Values.backend.emailRegistrationGoogleSecret }}
             - name: GOOGLE_CLIENT_ID
               valueFrom:

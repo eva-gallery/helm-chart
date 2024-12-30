@@ -1,5 +1,5 @@
 {{- if .Values.backend.persistence.enabled }}
-kind: PersistentVolumeClbackendm
+kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: {{ include "eva.fullname" . }}-backend-static-cache
