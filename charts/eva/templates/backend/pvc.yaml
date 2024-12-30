@@ -2,7 +2,7 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ include "eva.fullname" . }}-backend-static-cache
+  name: eva-backend-static-data
   labels:
     {{- include "eva.selectorLabels" . | nindent 4 }}
     {{- include "eva.backend.selectorLabels" . | nindent 4 }}

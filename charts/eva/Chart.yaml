@@ -21,8 +21,13 @@ dependencies:
   - name: timescaledb-single
     version: 0.33.7
     repository: https://charts.fairwinds.com/incubator
-    condition: timescaledb-single.enabled
+    condition: timescaledb.enabled
     alias: timescaledb
+  - name: nginx
+    version: 18.3.1
+    repository: https://charts.bitnami.com/bitnami
+    condition: backend.persistence.enabled
+    alias: static-data
 home: https://evagallery.eu
 icon: https://evagallery.eu/logo.jpg
 sources:

@@ -5,5 +5,8 @@ dependencies:
 - name: timescaledb-single
   repository: https://charts.fairwinds.com/incubator
   version: 0.33.7
-digest: sha256:d4ab9c0f53d84687e79fd70c450f581dac79956de5cfa91a6404b38c8c94b813
-generated: "2024-11-19T22:20:13.01181+01:00"
+- name: nginx
+  repository: https://charts.bitnami.com/bitnami
+  version: 18.3.1
+digest: sha256:378e9bdb026ed5b4e9679066ce5014009fdb587ac081e83f3070dca58159b0d8
+generated: "2024-12-30T17:37:22.501873+01:00"
