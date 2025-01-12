@@ -75,7 +75,11 @@ spec:
             - name: NFT_MODULE_URL
               value: http://{{ include "eva.fullname" .}}-nft.{{ .Release.Namespace }}:80
             - name: FRONTEND_URL
+              {{- if .Values.ingress.host }}
+              value: http://{{ .Values.ingress.host }} 
+              {{- else }}
               value: http://{{ include "eva.fullname" .}}-frontend.{{ .Release.Namespace }}:3000
+              {{- end }}
             - name: AUTH_FAILURE_ROUTE
               value: admin/user/failure
             - name: AUTH_CREATE_USER_ROUTE

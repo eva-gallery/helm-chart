@@ -45,11 +45,11 @@ spec:
             {{- else }}
               value: http://{{ include "eva.fullname" .}}-backend.{{ .Release.Namespace }}:80
             {{- end }}
-            - name: INTERNAL_BACKEND_URL
+            - name: NEXT_INTERNAL_BACKEND_URL
               value: http://{{ include "eva.fullname" .}}-backend.{{ .Release.Namespace }}:80
-            {{- range .Values.ingress.hosts }}
+            {{- if .Values.ingress.host }}
             - name: NEXT_PUBLIC_URL
-              value: {{ .host }} 
+              value: {{ .Values.ingress.host }} 
             {{- end }}
     {{- with .Values.frontend.volumeMounts }}
           volumeMounts:
