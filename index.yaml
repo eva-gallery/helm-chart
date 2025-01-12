@@ -33,6 +33,46 @@ entries:
     version: 1.0.0
   - apiVersion: v2
     appVersion: 0.1.0
+    created: "2025-01-12T23:28:53.50969155Z"
+    dependencies:
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 16.1.0
+    - alias: timescaledb
+      condition: timescaledb.enabled
+      name: timescaledb-single
+      repository: https://charts.fairwinds.com/incubator
+      version: 0.33.7
+    - alias: static-data
+      condition: backend.persistence.enabled
+      name: nginx
+      repository: https://charts.bitnami.com/bitnami
+      version: 18.3.1
+    description: The most open and well playful gallery with NFT and AI support in
+      the web.
+    digest: 86168d8a0d94c04b1f59db821822a5e42b2275cc2914d7e6d97e97b52a9c98d4
+    home: https://evagallery.eu
+    icon: https://evagallery.eu/logo.jpg
+    keywords:
+    - gallery
+    - NFT
+    - AI
+    - art
+    - exhibition
+    maintainers:
+    - email: teebor@choka.com
+      name: Teebor Choka
+      url: https://github.com/Teebor-Choka
+    name: eva
+    sources:
+    - https://github.com/eva-gallery/helm-chart
+    type: application
+    urls:
+    - https://eva-gallery.github.io/helm-chart/eva-0.0.34.tgz
+    version: 0.0.34
+  - apiVersion: v2
+    appVersion: 0.1.0
     created: "2024-12-30T17:19:20.668520272Z"
     dependencies:
     - condition: postgresql.enabled
@@ -1155,4 +1195,4 @@ entries:
     urls:
     - https://eva-gallery.github.io/helm-chart/eva-0.0.1.tgz
     version: 0.0.1
-generated: "2024-12-30T17:19:20.656035975Z"
+generated: "2025-01-12T23:28:53.497007411Z"
