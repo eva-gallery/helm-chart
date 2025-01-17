@@ -76,7 +76,7 @@ spec:
               value: http://{{ include "eva.fullname" .}}-nft.{{ .Release.Namespace }}:80
             - name: FRONTEND_URL
               {{- if .Values.ingress.host }}
-              value: http://{{ .Values.ingress.host }} 
+              value: https://{{ .Values.ingress.host }} 
               {{- else }}
               value: http://{{ include "eva.fullname" .}}-frontend.{{ .Release.Namespace }}:3000
               {{- end }}
