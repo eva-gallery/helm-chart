@@ -385,10 +385,17 @@ ingress:
 ## ref: https://artifacthub.io/packages/helm/bitnami/nginx
 ##
 static-data:
+  service:
+    type: ClusterIP
+    ports:
+      http: 8080
+      https: 8443
   serverBlock: |-
     server {
       listen 0.0.0.0:8080;
       location / {
+        autoindex off;
+        rewrite ^/protected/assets(/.*)$ $1 break;
         root /static-data;
       }
     }
@@ -399,7 +406,6 @@ static-data:
   extraVolumeMounts:
     - mountPath: /static-data
       name: static-data
-
 
 
 ## Configuration values for the postgresql dependency.

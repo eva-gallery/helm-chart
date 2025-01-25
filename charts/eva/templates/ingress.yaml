@@ -36,6 +36,20 @@ spec:
     - host: {{ .Values.ingress.host | quote }}
       http:
         paths:
+          {{- if .Values.backend.persistence.enabled }}
+          - path: /protected/assets
+            pathType: Prefix
+            backend:
+              service:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+                name: {{ .Release.Namespace }}-static-data
+                port:
+                  number: 8080
+              {{- else }}
+              serviceName: {{ .Release.Namespace }}-static-data
+              servicePort: 8080
+              {{- end }}
+          {{- end }}
           {{- range .Values.ingress.paths }}
           - path: {{ .path }}
             {{- if and .pathType (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
