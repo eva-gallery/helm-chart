@@ -46,18 +46,15 @@ spec:
             - name: EVA_AI_BENTOML__SERVICE__API__WORKERS
               value: {{ default "10" .Values.ai.config.workers | quote }}
             - name: EVA_AI_POSTGRES__HOST
-              value: {{ template "eva.timescaledb.host" . }}
+              valueFrom: { secretKeyRef: { name: {{ .Values.ai.database.credentialsSecretName }}, key: host } }
             - name: EVA_AI_POSTGRES__PORT
-              value: "5432"
+              valueFrom: { secretKeyRef: { name: {{ .Values.ai.database.credentialsSecretName }}, key: port } }
             - name: EVA_AI_POSTGRES__USER
-              value: "postgres"
+              valueFrom: { secretKeyRef: { name: {{ .Values.ai.database.credentialsSecretName }}, key: user } }
             - name: EVA_AI_POSTGRES__DB
-              value: postgres
+              valueFrom: { secretKeyRef: { name: {{ .Values.ai.database.credentialsSecretName }}, key: dbname } }
             - name: EVA_AI_POSTGRES__PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "eva.timescaledb.secret" . }}
-                  key: {{ template "eva.timescaledb.secretKey" . }}
+              valueFrom: { secretKeyRef: { name: {{ .Values.ai.database.credentialsSecretName }}, key: password } }
             {{- with .Values.ai.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}

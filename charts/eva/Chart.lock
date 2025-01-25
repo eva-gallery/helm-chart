@@ -2,11 +2,8 @@ dependencies:
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
   version: 16.1.0
-- name: timescaledb-single
-  repository: https://charts.fairwinds.com/incubator
-  version: 0.33.7
 - name: nginx
   repository: https://charts.bitnami.com/bitnami
   version: 18.3.1
-digest: sha256:378e9bdb026ed5b4e9679066ce5014009fdb587ac081e83f3070dca58159b0d8
-generated: "2024-12-30T17:37:22.501873+01:00"
+digest: sha256:962f6164b9a79a2855e0831602d5c41f2bf32e4154158d4afdc5cdc962575a65
+generated: "2025-01-25T20:48:42.9355+01:00"
