@@ -69,11 +69,34 @@ spec:
               containerPort: {{ default 80 .Values.ai.service.port }} 
               protocol: TCP
           livenessProbe:
+          {{- if .Values.ai.livenessProbe }}
             {{- toYaml .Values.ai.livenessProbe | nindent 12 }}
+          {{- else }}
+            httpGet:
+              path: /healthz
+              port: {{ default 80 .Values.ai.service.port }}
+          {{- end }}
           readinessProbe:
+          {{- if .Values.ai.readinessProbe }}
             {{- toYaml .Values.ai.readinessProbe | nindent 12 }}
+          {{- else }}
+            httpGet:
+              path: /readyz
+              port: {{ default 80 .Values.ai.service.port }}
+          {{- end }}
           startupProbe:
+          {{- if .Values.ai.startupProbe }}
             {{- toYaml .Values.ai.startupProbe | nindent 12 }}
+          {{- else }}
+            initialDelaySeconds: 45
+            periodSeconds: 5
+            timeoutSeconds: 15
+            successThreshold: 1
+            failureThreshold: 60
+            httpGet:
+              path: /readyz
+              port: {{ default 80 .Values.ai.service.port }}
+          {{- end }}
           resources:
             {{- toYaml .Values.ai.resources | nindent 12 }}
       {{- with .Values.ai.nodeSelector }}
