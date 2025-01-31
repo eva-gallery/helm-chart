@@ -46,9 +46,9 @@ spec:
             - name: EVA_AI_BENTOML__SERVICE__API__WORKERS
               value: {{ default "10" .Values.ai.config.workers | quote }}
             - name: EVA_AI_POSTGRES__HOST
-              valueFrom: { secretKeyRef: { name: {{ .Values.ai.database.credentialsSecretName }}, key: host } }
+              value: {{ include "eva.fullname" .}}-timescaledb-ai
             - name: EVA_AI_POSTGRES__PORT
-              valueFrom: { secretKeyRef: { name: {{ .Values.ai.database.credentialsSecretName }}, key: port } }
+              value: "5432"
             - name: EVA_AI_POSTGRES__USER
               valueFrom: { secretKeyRef: { name: {{ .Values.ai.database.credentialsSecretName }}, key: user } }
             - name: EVA_AI_POSTGRES__DB

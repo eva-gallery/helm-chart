@@ -292,14 +292,11 @@ ai:
   ## Configuration values for the postgreql database with access.
   ##
   database:
-    credentialsSecretName: "eva-cluster-secret"
+    credentialsSecretName: "timescaledb-secret"
     # content
       # user: The name of the user account.
       # password: The password for the user account.
       # dbname: The name of the database that the user has access to by default.
-      # host: The name of the host of the database. This references the Service of the primary Postgres instance.
-      # port: The port that the database is listening on.
-      # uri: A PostgreSQL connection URI that provides all the information for logging into the Postgres database.
 
   persistence:
     enabled: true
@@ -450,4 +447,14 @@ postgresql:
     ##
     size: 10Gi
 
+timescaledb:
+  storage:
+    size: 60Gi
+  
+  resources: {}
 
+  credentialsSecret: "timescaledb-secret"
+  # secret:
+  #   user: <>
+  #   password: <>
+  #   dbname: <>
