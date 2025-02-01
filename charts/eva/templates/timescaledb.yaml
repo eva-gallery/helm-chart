@@ -1,0 +1,85 @@
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: timescaledb-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.timescaledb.storage.size }}
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "eva.fullname" .}}-timescaledb
+spec:
+  serviceName: timescaledb
+  replicas: 1
+  selector:
+    matchLabels:
+      app: timescaledb
+  template:
+    metadata:
+      labels:
+        app: timescaledb
+    spec:
+      securityContext:
+        # The postgres user inside the TimescaleDB image has uid=1000.
+        # This configuration ensures the permissions of the mounts are suitable
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: timescaledb
+          image: timescale/timescaledb-ha:pg17
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.timescaledb.credentialsSecret }}
+                  key: user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.timescaledb.credentialsSecret }}
+                  key: password
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.timescaledb.credentialsSecret }}
+                  key: dbname
+            - name: PGDATA
+              value: "/var/lib/postgresql/data"
+            - name: TIMESCALEDB_TELEMETRY
+              value: "off"
+          resources:
+            {{- toYaml .Values.timescaledb.resources | nindent 12 }}
+          volumeMounts:
+            - name: timescaledb-storage
+              mountPath: /var/lib/postgresql
+      volumes:
+        - name: timescaledb-storage
+          persistentVolumeClaim:
+            claimName: timescaledb-pvc
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "eva.fullname" .}}-timescaledb-ai
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: timescaledb

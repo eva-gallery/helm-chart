@@ -1,20 +1,14 @@
----
-
-{{- if .Values.ingress.enabled -}}
+{{- if and .Values.ingress.enabled .Values.ingress.host -}}
   {{- $fullName := include "eva.fullname" . -}}
   {{- $svcPort := .Values.frontend.service.port -}}
   {{- if and .Values.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
-  {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
-  {{- $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className}}
+  {{-   if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
+  {{-   $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className}}
+  {{-   end }}
   {{- end }}
-  {{- end }}
-  {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+---
+
 apiVersion: networking.k8s.io/v1
-  {{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
-apiVersion: networking.k8s.io/v1beta1
-  {{- else -}}
-apiVersion: extensions/v1beta1
-  {{- end }}
 kind: Ingress
 metadata:
   name: {{ $fullName }}
@@ -39,11 +33,24 @@ spec:
   {{- end }}
 {{- end }}
   rules:
-  {{- range .Values.ingress.hosts }}
-    - host: {{ .host | quote }}
+    - host: {{ .Values.ingress.host | quote }}
       http:
         paths:
-          {{- range .paths }}
+          {{- if .Values.backend.persistence.enabled }}
+          - path: /protected/assets
+            pathType: Prefix
+            backend:
+              service:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+                name: {{ .Release.Namespace }}-static-data
+                port:
+                  number: 8080
+              {{- else }}
+              serviceName: {{ .Release.Namespace }}-static-data
+              servicePort: 8080
+              {{- end }}
+          {{- end }}
+          {{- range .Values.ingress.paths }}
           - path: {{ .path }}
             {{- if and .pathType (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
             pathType: {{ .pathType }}
@@ -59,5 +66,4 @@ spec:
               servicePort: {{ $svcPort }}
               {{- end }}
           {{- end }}
-  {{- end }}
   {{- end }}

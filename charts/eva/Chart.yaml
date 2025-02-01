@@ -2,7 +2,7 @@
 
 apiVersion: v2
 name: eva
-version: 1.0.0
+version: 0.0.48
 AppVersion: 0.1.0
 description: The most open and well playful gallery with NFT and AI support in the web.
 keywords:
@@ -18,6 +18,11 @@ dependencies:
     version: 16.1.0
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
+  - name: nginx
+    version: 18.3.1
+    repository: https://charts.bitnami.com/bitnami
+    condition: backend.persistence.enabled
+    alias: static-data
 home: https://evagallery.eu
 icon: https://evagallery.eu/logo.jpg
 sources:

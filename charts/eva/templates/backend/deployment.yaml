@@ -28,16 +28,6 @@ spec:
       serviceAccountName: {{ include "eva.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.backend.podSecurityContext | nindent 8 }}
-      initContainers:
-        - name: {{ .Chart.Name }}-backend-migrate-db
-          image: {{ .Values.backend.image.repository }}:{{ default "latest" .Values.backend.image.tag }}
-          imagePullPolicy: {{ default "IfNotPresent" .Values.backend.image.imagePullPolicy }}
-          env:
-            {{- toYaml .Values.backend.env | nindent 12 }}
-          command: [ "sh", "-c" ]
-          args: [
-            "npm run migration:run"
-          ]
       containers:
         - name: {{ .Chart.Name }}-backend
           securityContext:
@@ -46,23 +36,23 @@ spec:
           imagePullPolicy: {{ default "IfNotPresent" .Values.backend.image.imagePullPolicy }}
           env:
             - name: PORT
-              value: {{ default 80 .Values.backend.service.port }}
+              value: {{ default "80" .Values.backend.service.port | quote }}
+            - name: AI_ACCESS_TOKEN_SECRET
+              value:  {{ template "eva.tokens.backendAi" . }}
+            - name: AI_MODULE_URL
+              value: http://{{ include "eva.fullname" .}}-ai.{{ .Release.Namespace }}:{{ default 80 .Values.ai.service.port }}
+            - name: SUBSCAN_URL
+              value: {{.Values.backend.config.subscan_url }}
             - name: DB_TYPE
               value: postgres
-            {{- if (.Values.externalPostgresql).databaseURL }}
-            - name: DATABASE_URL
-              value: {{ .Values.externalPostgresql.databaseURL }}
-            - name: NODE_TLS_REJECT_UNAUTHORIZED
-              value: {{ default "1" .Values.externalPostgresql.NODE_TLS_REJECT_UNAUTHORIZED | quote }}
-            {{- else }}
             - name: POSTGRES_HOST
               value: {{ template "eva.postgresql.host" . }}
             - name: POSTGRES_PORT
-              value: "{{ default "5432" .Values.postgresql.postgresqlPort }}"
+              value: "{{ default "5432" .Values.postgresql.containerPorts.postgresql }}"
             - name: POSTGRES_DATABASE
-              value: {{ default "eva" .Values.postgresql.postgresqlDatabase }}
+              value: {{ default "evagallery" .Values.postgresql.auth.database }}
             - name: POSTGRES_USER
-              value: {{ default "eva" .Values.postgresql.postgresqlUser }}
+              value: {{ default "postgres" .Values.postgresql.auth.user }}
             - name: POSTGRES_SSL
               value: "{{ default "false" .Values.postgresql.ssl }}"
             - name: POSTGRES_SSL_CA
@@ -76,22 +66,68 @@ spec:
                   name: {{ template "eva.postgresql.secret" . }}
                 {{- end }}
                   key: {{ template "eva.postgresql.secretKey" . }}
-            {{- end }}
             - name: HA_ACTIVE
               value: {{ .Values.backend.replicaCount | int | ge 2 | quote }}
             - name: SESSION_LIFETIME
-              value:  {{ default 600 .Values.backend.config.session_lifetime }}
+              value:  {{ default "600" .Values.backend.config.session_lifetime | quote}}
             - name: LOG_REQUESTS
-              value: {{ default true .Values.backend.config.log_requests }}
+              value: {{ default "true" .Values.backend.config.log_requests | quote}}
             - name: NFT_MODULE_URL
               value: http://{{ include "eva.fullname" .}}-nft.{{ .Release.Namespace }}:80
+            - name: FRONTEND_URL
+              {{- if .Values.ingress.host }}
+              value: https://{{ .Values.ingress.host }} 
+              {{- else }}
+              value: http://{{ include "eva.fullname" .}}-frontend.{{ .Release.Namespace }}:3000
+              {{- end }}
+            - name: AUTH_FAILURE_ROUTE
+              value: admin/user/failure
+            - name: AUTH_CREATE_USER_ROUTE
+              value: admin/user/create
+            - name: AUTH_RESET_USER_ROUTE
+              value: admin/user/newpassword
+            - name: STATIC_FILE_ROOT
+              value: /static-data
+            {{- if .Values.backend.emailRegistrationGoogleSecret }}
+            - name: GOOGLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backend.emailRegistrationGoogleSecret }}
+                  key: clientId
+            # Google app client secret
+            - name: GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backend.emailRegistrationGoogleSecret }}
+                  key: clientSecret
+            # Google email used for sending emails
+            - name: GOOGLE_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backend.emailRegistrationGoogleSecret }}
+                  key: email
+            # Google email refresh token
+            - name: GOOGLE_EMAIL_REFRESH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backend.emailRegistrationGoogleSecret }}
+                  key: emailRefreshToken
+            # Google email mailbox (used for personalized 'from' in emails)
+            - name: GOOGLE_MAILBOX
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backend.emailRegistrationGoogleSecret }}
+                  key: mailbox
+            {{- end -}}
             {{- with .Values.backend.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
-    {{- with .Values.backend.volumeMounts }}
           volumeMounts:
+            - mountPath: /static-data
+              name: static-data
+     {{- with .Values.backend.volumeMounts }}
             {{- toYaml . | nindent 12 }}
-    {{- end }}
+     {{- end }}
           ports:
             - name: http
               containerPort: {{ default 80 .Values.backend.service.port }} 
@@ -116,7 +152,15 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.backend.volumes }}
       volumes:
+        - name: static-data
+        {{- if .Values.backend.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: eva-backend-static-data
+        {{- else }}
+          emptyDir:
+            sizeLimit: {{ .Values.backend.persistence.size }}
+        {{- end }}
+    {{- with .Values.backend.volumes }}
         {{- toYaml . | nindent 8 }}
     {{- end }}

@@ -13,7 +13,7 @@ serviceAccount:
 
 frontend:
   image:
-    repository: evagalleryone/evagallery
+    repository: evagalleryone/gallery
     tag: latest
     imagePullPolicy: IfNotPresent
 
@@ -26,6 +26,9 @@ frontend:
     # httpsPort: 443
     # annotations: {}
     # loadBalancerIP: 172.16.0.1
+  
+  config:
+    public_backend_url: ""
 
   env: {}
 
@@ -64,18 +67,16 @@ frontend:
     # runAsNonRoot: true
     # runAsUser: 1000
 
-
-
   volumeMounts: {}
 
   livenessProbe:
     httpGet:
-      path: /healthz
+      path: /healthyz
       port: http
 
   readinessProbe:
     httpGet:
-      path: /healthz
+      path: /readyz
       port: http
 
   startupProbe:
@@ -85,9 +86,8 @@ frontend:
     successThreshold: 1
     failureThreshold: 60
     httpGet:
-      path: /healthz
+      path: /readyz
       port: http
-
 
 backend:
   image:
@@ -98,16 +98,29 @@ backend:
   config:
     session_lifetime: 600
     log_requests: true
+    subscan_url: https://assethub-kusama.subscan.io
 
+  # the secret containing Google E-mail registration data in the following format
+  #
+  # emailRegistrationGoogleSecret:
+  #   clientId: ...
+  #   clientSecret: ...
+  #   email: ...
+  #   emailRefreshToken: ...
+  #   mailbox: ...
+  emailRegistrationGoogleSecret: ""
+
+  # these values must have an override for auth and registration to work !
   extraEnv:
-    # - name: EVA_GALLERY_COLLECTION
-    #   value: 465  # <TODO: setup manually and insert here>
-    # - name: WSS_PROVIDER
-    #   value: wss://kusama-asset-hub-rpc.polkadot.io
-    # - name: WALLET_ADDRESS
-    #   value: <TODO: Add wallet address>
-    # - name: SUBSCAN_URL
-    #   value: https://assethub-kusama.subscan.io
+    # Server domain used for auth callbacks
+    - name: AUTH_CALLBACK_DOMAIN
+      value: http://localhost:3000
+
+  persistence:
+    enabled: true
+    # storageClass: "-"
+    accessMode: ReadWriteMany
+    size: 64Gi
 
   replicaCount: 1
   service:
@@ -118,8 +131,6 @@ backend:
     # httpsPort: 443
     # annotations: {}
     # loadBalancerIP: 172.16.0.1
-
-  env: {}
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -160,12 +171,12 @@ backend:
 
   livenessProbe:
     httpGet:
-      path: /healthz
+      path: /healthyz
       port: http
 
   readinessProbe:
     httpGet:
-      path: /healthz
+      path: /readyz
       port: http
 
   startupProbe:
@@ -175,7 +186,7 @@ backend:
     successThreshold: 1
     failureThreshold: 60
     httpGet:
-      path: /healthz
+      path: /readyz
       port: http
 
 nft:
@@ -194,8 +205,8 @@ nft:
     keyUrl: url
 
   config:
-    wss_rpc_provider: wss://kusama-asset-hub-rpc.polkadot.io
-    # collection_id: 456    # E.V.A. gallery collection ID
+    wss_rpc_provider: wss://sys.ibp.network/asset-hub-paseo
+    collection_id: 456    # E.V.A. gallery collection ID
     ipfs_name: ipfs
 
   extraEnv: []
@@ -251,12 +262,12 @@ nft:
 
   livenessProbe:
     httpGet:
-      path: /healthz
+      path: /healthyz
       port: http
 
   readinessProbe:
     httpGet:
-      path: /healthz
+      path: /readyz
       port: http
 
   startupProbe:
@@ -266,8 +277,87 @@ nft:
     successThreshold: 1
     failureThreshold: 60
     httpGet:
-      path: /healthz
+      path: /readyz
       port: http
+
+ai:
+  image:
+    repository: evagalleryone/ai
+    tag: latest
+    imagePullPolicy: IfNotPresent
+
+  config:
+    workers: 10
+
+  ## Configuration values for the postgreql database with access.
+  ##
+  database:
+    credentialsSecretName: "timescaledb-secret"
+    # content
+      # user: The name of the user account.
+      # password: The password for the user account.
+      # dbname: The name of the database that the user has access to by default.
+
+  persistence:
+    enabled: true
+    # storageClass: "-"
+    accessMode: ReadWriteMany
+    size: 64Gi
+
+  extraEnv: []
+
+  replicaCount: 1
+  service:
+    port: 80
+    type: ClusterIP
+    # --- service type LoadBalancer
+    # type: LoadBalancer
+    # httpsPort: 443
+    # annotations: {}
+    # loadBalancerIP: 172.16.0.1
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  volumeMounts: []
+
+  volumes: []
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+  volumeMounts: {}
+
+  livenessProbe: {}
+
+  readinessProbe: {}
+
+  startupProbe: {}
 
 ingress:
   enabled: true
@@ -275,11 +365,10 @@ ingress:
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: eva.minikube.local
-      paths:
-        - path: "/"
-          pathType: Prefix
+  # host: eva.minikube.local
+  paths:
+    - path: "/"
+      pathType: Prefix
 
   tls: []
   #  - secretName: chart-example-tls
@@ -287,12 +376,32 @@ ingress:
   #      - chart-example.local
 
 
-## This will override the postgresql chart values
-# externalPostgresql:
-#   # note: ?sslmode=require => ?ssl=true
-#   databaseURL: postgresql://postgres:postgres@postgres:5432/wiki?ssl=true
-#   # For self signed CAs, like DigitalOcean
-#   NODE_TLS_REJECT_UNAUTHORIZED: "0"
+## Configuration values for the static data generated by the E.V.A gallery.
+## ref: https://artifacthub.io/packages/helm/bitnami/nginx
+##
+static-data:
+  service:
+    type: ClusterIP
+    ports:
+      http: 8080
+      https: 8443
+  serverBlock: |-
+    server {
+      listen 0.0.0.0:8080;
+      location / {
+        autoindex off;
+        rewrite ^/protected/assets(/.*)$ $1 break;
+        root /static-data;
+      }
+    }
+  extraVolumes:
+    - name: static-data
+      persistentVolumeClaim:
+        claimName: eva-backend-static-data
+  extraVolumeMounts:
+    - mountPath: /static-data
+      name: static-data
+
 
 ## Configuration values for the postgresql dependency.
 ## ref: https://github.com/kubernetes/charts/blob/master/stable/postgresql/README.md
@@ -301,18 +410,51 @@ postgresql:
   ## Use the PostgreSQL chart dependency.
   ## Set to false if bringing your own PostgreSQL, and set secret value postgresql-uri.
   ##
-  enabled: false
-  # ssl: false
-  # ca: "path to ca"
-  # postgresqlHost: postgres
-  # postgresqlPort: 5432
+  enabled: true
   fullnameOverride: ""
-  postgresqlUser: postgres
-  postgresqlDatabase: wiki
+  auth:
+    database: evagallery
+  ## Persistent Volume Storage configuration.
+  ## ref: https://kubernetes.io/docs/user-guide/persistent-volumes
+  ##
+  #
+  ## Existing secret that holds the postgres user password
+  # existingSecret: ""
+  #
+  ## Key in the existing secret that holds the postgres user password
+  # existingSecretKey: ""
+  #
   replication:
+    ## Enable PostgreSQL replication (primary/secondary)
+    ##
     enabled: false
   persistence:
+    ## Enable PostgreSQL persistence using Persistent Volume Claims.
+    ##
     enabled: true
+    ## concourse data Persistent Volume Storage Class
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    ##
     # storageClass: "-"
+    ## Persistent Volume Access Mode.
+    ##
     accessMode: ReadWriteOnce
-    size: 8Gi
+    ## Persistent Volume Storage Size.
+    ##
+    size: 10Gi
+
+timescaledb:
+  storage:
+    size: 60Gi
+  
+  resources: {}
+
+  credentialsSecret: "timescaledb-secret"
+  # secret:
+  #   user: <>
+  #   password: <>
+  #   dbname: <>

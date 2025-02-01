@@ -1,0 +1,18 @@
+{{- if .Values.ai.persistence.enabled }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "eva.fullname" . }}-ai-model-cache
+  labels:
+    {{- include "eva.selectorLabels" . | nindent 4 }}
+    {{- include "eva.ai.selectorLabels" . | nindent 4 }}
+spec:
+  {{- if .Values.ai.persistence.storageClass }}
+  storageClassName: {{ .Values.ai.persistence.storageClass }}
+  {{- end }}
+  accessModes:
+    - {{ .Values.ai.persistence.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.ai.persistence.size | quote }}
+{{- end }}

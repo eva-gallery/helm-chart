@@ -21,6 +21,8 @@
 
           # utils
           utilsPkgs = with pkgs; [
+            kubectl
+            kustomize
             (wrapHelm kubernetes-helm {
               plugins = with pkgs.kubernetes-helmPlugins; [
                 helm-secrets

@@ -34,12 +34,24 @@ spec:
             {{- toYaml .Values.frontend.securityContext | nindent 12 }}
           image: {{ .Values.frontend.image.repository }}:{{ default "latest" .Values.frontend.image.tag }}
           imagePullPolicy: {{ default "IfNotPresent" .Values.frontend.image.imagePullPolicy }}
+          command: ["node"]
+          args: ["server.js"]
           env:
             - name: HA_ACTIVE
               value: {{ .Values.frontend.replicaCount | int | ge 2 | quote }}
-    {{- with .Values.frontend.volumeMounts }}
             - name: NEXT_PUBLIC_BACKEND_URL
+            {{- if .Values.frontend.config.public_backend_url }}
+              value: {{ .Values.frontend.config.public_backend_url }} 
+            {{- else }}
               value: http://{{ include "eva.fullname" .}}-backend.{{ .Release.Namespace }}:80
+            {{- end }}
+            - name: NEXT_INTERNAL_BACKEND_URL
+              value: http://{{ include "eva.fullname" .}}-backend.{{ .Release.Namespace }}:80
+            {{- if .Values.ingress.host }}
+            - name: NEXT_PUBLIC_URL
+              value: {{ .Values.ingress.host }} 
+            {{- end }}
+    {{- with .Values.frontend.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
     {{- end }}

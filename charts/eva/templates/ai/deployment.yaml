@@ -1,0 +1,125 @@
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "eva.fullname" . }}-ai
+  labels:
+    {{- include "eva.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.ai.replicaCount }}
+  revisionHistoryLimit: {{ .Values.ai.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      {{- include "eva.selectorLabels" . | nindent 6 }}
+      {{- include "eva.ai.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "eva.selectorLabels" . | nindent 8 }}
+        {{- include "eva.ai.selectorLabels" . | nindent 8 }}
+      annotations:
+        {{- toYaml .Values.ai.podAnnotations | nindent 8 }}
+    spec:
+    {{- with .Values.ai.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "eva.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.ai.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-ai
+          securityContext:
+            {{- toYaml .Values.ai.securityContext | nindent 12 }}
+          image: {{ .Values.ai.image.repository }}:{{ default "latest" .Values.ai.image.tag }}
+          imagePullPolicy: {{ default "IfNotPresent" .Values.ai.image.imagePullPolicy }}
+          env:
+            - name: BENTOML_PORT
+              value: {{ default "80" .Values.ai.service.port | quote }}
+            - name: EVA_AI_JWT_SECRET
+              value:  {{ template "eva.tokens.backendAi" . }}
+            - name: ENV_FOR_DYNACONF
+              value: "production"
+            - name: EVA_AI_MODEL__CACHE_DIR
+              value: "/models"
+            - name: EVA_AI_BENTOML__SERVICE__API__WORKERS
+              value: {{ default "10" .Values.ai.config.workers | quote }}
+            - name: EVA_AI_POSTGRES__HOST
+              value: {{ include "eva.fullname" .}}-timescaledb-ai
+            - name: EVA_AI_POSTGRES__PORT
+              value: "5432"
+            - name: EVA_AI_POSTGRES__USER
+              valueFrom: { secretKeyRef: { name: {{ .Values.ai.database.credentialsSecretName }}, key: user } }
+            - name: EVA_AI_POSTGRES__DB
+              valueFrom: { secretKeyRef: { name: {{ .Values.ai.database.credentialsSecretName }}, key: dbname } }
+            - name: EVA_AI_POSTGRES__PASSWORD
+              valueFrom: { secretKeyRef: { name: {{ .Values.ai.database.credentialsSecretName }}, key: password } }
+            {{- with .Values.ai.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            - mountPath: /models
+              name: models
+    {{- with .Values.ai.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+    {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ default 80 .Values.ai.service.port }} 
+              protocol: TCP
+          livenessProbe:
+          {{- if .Values.ai.livenessProbe }}
+            {{- toYaml .Values.ai.livenessProbe | nindent 12 }}
+          {{- else }}
+            httpGet:
+              path: /healthz
+              port: {{ default 80 .Values.ai.service.port }}
+          {{- end }}
+          readinessProbe:
+          {{- if .Values.ai.readinessProbe }}
+            {{- toYaml .Values.ai.readinessProbe | nindent 12 }}
+          {{- else }}
+            httpGet:
+              path: /readyz
+              port: {{ default 80 .Values.ai.service.port }}
+          {{- end }}
+          startupProbe:
+          {{- if .Values.ai.startupProbe }}
+            {{- toYaml .Values.ai.startupProbe | nindent 12 }}
+          {{- else }}
+            initialDelaySeconds: 45
+            periodSeconds: 5
+            timeoutSeconds: 15
+            successThreshold: 1
+            failureThreshold: 60
+            httpGet:
+              path: /readyz
+              port: {{ default 80 .Values.ai.service.port }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.ai.resources | nindent 12 }}
+      {{- with .Values.ai.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.ai.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.ai.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      volumes:
+      - name: models
+        {{- if .Values.ai.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ include "eva.fullname" . }}-ai-model-cache
+        {{- else }}
+        emptyDir:
+          sizeLimit: {{ .Values.ai.persistence.size }}
+        {{- end }}
+    {{- with .Values.ai.volumes }}
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
